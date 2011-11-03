@@ -6,8 +6,7 @@ from smartcard.util import toHexString, toBytes
 
 def getNonce():
     
-    print("Enter a nonce or <Enter> for default value.\nThe nonce should be 8 bytes-long in hexadecimal\nDefault: 11 22 33 44 55 66 77 88.")
-    
+    print("Enter an authentification nonce or <Enter> for default value.\nThe nonce should be 8 bytes-long in hexadecimal\nDefault: 11 22 33 44 55 66 77 88.")
     
     is_nonce = False
     while True:
@@ -34,7 +33,6 @@ def checkNonce(nonce):
 
 if __name__ == "__main__":
     s = SmartUtils()
-    s.poll()
-
     nonce = getNonce()
+    s.poll()
     s.auth(nonce)
