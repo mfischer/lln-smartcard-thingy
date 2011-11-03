@@ -4,15 +4,14 @@ import pyDes
 import os
 from binascii import hexlify, unhexlify
 
-def generateResponse (nonce, debug=False):
+def generateResponse (nonce, our_nonce = None, debug=False):
     nt = decipher(nonce)
     nt2 = nt[1:]+nt[:1]
-    nr = os.urandom(8)
-
-    nr = unhexlify ('1122334455667788')
+    nr = our_nonce or os.urandom(8)
     d1 = decipher (nr)
     buff = hex (int (hexlify (d1), 16) ^ int (hexlify (nt2), 16))
     d2 = decipher (unhexlify (buff[2:-1]))
+
 
     if debug:
         print 'nt =', hexlify (nt)
@@ -39,7 +38,9 @@ def verifyResponse (resp, nr):
 if __name__ == '__main__':
     nonce  = 0x6e7577944adffc0c
     _nonce = unhexlify (hex (nonce)[2:])
-    response, nr = generateResponse (_nonce)
+    our_nonce = 0x1122334455667788
+    _our_nonce = unhexlify (hex (our_nonce)[2:])
+    response, nr = generateResponse (_nonce, _our_nonce)
     print 'Response = ', hexlify (response)
     print 'Nonce = ', hexlify (nr)
-    print 'Verification ok?', verifyResponse ('AD6CC16025CCFB7B', nr)
+    print "Verification ok?", verifyResponse ('AD6CC16025CCFB7B', nr)
