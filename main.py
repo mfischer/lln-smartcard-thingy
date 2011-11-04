@@ -33,6 +33,7 @@ def checkNonce(nonce):
 
 if __name__ == "__main__":
     s = SmartUtils()
-    nonce = getNonce()
+    #nonce = getNonce()
     s.poll()
-    s.auth(nonce)
+    s.auth()
+    s.selectApplication(0)
