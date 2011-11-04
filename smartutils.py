@@ -37,8 +37,7 @@ class SmartUtils:
         
         Do the authentification 1st step, get the tag nonce and do byte shifting
         """
-        #sys.stdout.write("Authentificating... ")
-        print("Authentificating... ")
+        sys.stdout.write("Authentificating... ")
         cmd = toBytes ("FF 00 00 00 0A D4 40 01 90 0A 00 00 01")
         cmd.append(key_num)
         cmd.append(0x00)
@@ -50,21 +49,22 @@ class SmartUtils:
         data, sw1, sw2 = self.session.sendCommandAPDU( toBytes( "FF C0 00 00 0F" ) )
         #print(toHexString(data)+", "+toHexString([sw1, sw2]))
 
-        print data[3:]        
-        n_t = crc.mergeList( data[3:] )
-        print n_t
+        n_t = crc.mergeList( data[3:11] )
         n2_t = unhexlify( n_t )
-        print n2_t
-        response, nr = challenge.generateResponse(n_t)
-        print(n_t, response, nr)
+        response, nr = challenge.generateResponse(n2_t)
+        
+        cmd = "FF 00 00 00 19 D4 40 01 90 AF 00 00 10"
+        cmd += hexlify(response)
+        cmd += "00"
+        data, sw1, sw2 = self.session.sendCommandAPDU( toBytes(cmd) )
+        if sw1!=0x61 or sw2!=0x0F:
+            sys.stdout.write("[Fail]\n")
+            return False
+        
+        data, sw1, sw2 = self.session.sendCommandAPDU( toBytes("FF C0 00 00 0F") )
+        n2_r = crc.mergeList( data[3:11] )
 
-        #sys.stdout.write("[Done]\n")
-        
-    def _encDES(self,inp):
-        nonce = ""
-        for b in inp:
-            nonce += str(b)
-        
-        # not working, return error code
-        return subprocess.check_call("echo "+nonce+" | xxd -p -r | openssl enc -des -d -K 0 -iv 0 -nopad | xxd -p",shell=True)
-        
+        if challenge.verifyResponse(n2_r, nr):
+            sys.stdout.write("[Done]\n")
+        else:
+            sys.stdout.write("[Fail]\n")
