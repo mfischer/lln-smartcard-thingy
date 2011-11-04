@@ -3,8 +3,9 @@ import sys
 import subprocess
 
 from smartcard.util import toHexString, toBytes
+from binascii import hexlify, unhexlify
 
-from DESFire import challenge
+from desfire import challenge, crc
 
 class SmartUtils:
 
@@ -48,22 +49,16 @@ class SmartUtils:
         
         data, sw1, sw2 = self.session.sendCommandAPDU( toBytes( "FF C0 00 00 0F" ) )
         #print(toHexString(data)+", "+toHexString([sw1, sw2]))
-        
-        # nonce + byte shifting
-        n_t = unhexlify( hex (data[3:])[2:] )
-        # n_t = n_t[1:]
-        # n_t.append( data[3] )
+
+        print data[3:]        
+        n_t = crc.mergeList( data[3:] )
+        print n_t
+        n2_t = unhexlify( n_t )
+        print n2_t
         response, nr = challenge.generateResponse(n_t)
-        print(data[3:])
-        n_t = self._encDES(data[3:])
-        n2_t = str(n_t)[1:]+str(n_t)[0]
+        print(n_t, response, nr)
 
         #sys.stdout.write("[Done]\n")
-        
-        #print(data[3:])
-        print(n_t)
-        print(n2_t)
-
         
     def _encDES(self,inp):
         nonce = ""
