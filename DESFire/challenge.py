@@ -12,13 +12,12 @@ def generateResponse (nonce, our_nonce = None, debug=False):
     buff = hex (int (hexlify (d1), 16) ^ int (hexlify (nt2), 16))
     d2 = decipher (unhexlify (buff[2:-1]))
 
-
     if debug:
         print 'nt =', hexlify (nt)
         print 'nt2 =', hexlify (nt2)
-        print 'D1 = ', hexlify (d1)
+        print 'D1 =', hexlify (d1)
         print 'Buff =', buff[2:-1]
-        print 'D2 = ', hexlify(d2)
+        print 'D2 =', hexlify(d2)
         print 'D1 || D2 =',  hexlify (d1) + hexlify (d2)
 
     return (d1 + d2, nr)
@@ -35,6 +34,19 @@ def verifyResponse (resp, nr):
     nr2 = nr[1:]+nr[:1]
     return decipher (_resp) == nr2
 
+def deriveSessionKey (nonce, ourNonce, isPalindrome=False):
+    if isPalindrome:
+        sessionKey = ourNonce[:4] + nonce[:4]
+        assert len(sessionKey) is 8
+        return sessionKey
+    else:
+        sessionKey = ourNonce[:4] + nonce[:4] + ourNonce[4:] + nonce[4:]
+        assert len(sessionKey) is 16
+        return sessionKey
+
+def isPalindrome (key):
+    return key == key[::-1]
+
 if __name__ == '__main__':
     nonce  = 0x6e7577944adffc0c
     _nonce = unhexlify (hex (nonce)[2:])
@@ -43,4 +55,5 @@ if __name__ == '__main__':
     response, nr = generateResponse (_nonce, _our_nonce)
     print 'Response = ', hexlify (response)
     print 'Nonce = ', hexlify (nr)
-    print "Verification ok?", verifyResponse ('AD6CC16025CCFB7B', nr)
+    print 'Verification ok?', verifyResponse ('AD6CC16025CCFB7B', nr)
+    print 'Session key = ', hexlify (deriveSessionKey (_nonce, _our_nonce))
