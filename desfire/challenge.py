@@ -5,13 +5,13 @@ import os
 from binascii import hexlify, unhexlify
 
 def generateResponse (nonce, our_nonce = None, debug=False):
-    nt = decipher(nonce)
+    nt = _decipher(nonce)
     nt2 = nt[1:]+nt[:1]
     nr = our_nonce or os.urandom(8)
-    d1 = decipher (nr)
+    d1 = _decipher (nr)
     buff = int (hexlify (d1), 16) ^ int (hexlify (nt2), 16)
     buff = buff & 0xffffffffffffff00 >> 8 | buff & 0x00000000000000ff << 56
-    d2 = decipher (unhexlify(hex (buff)[2:-1]))
+    d2 = _decipher (unhexlify(hex (buff)[2:-1]))
 
     if debug:
         print 'nt =', hexlify (nt)
@@ -23,7 +23,7 @@ def generateResponse (nonce, our_nonce = None, debug=False):
 
     return (d1 + d2, nr)
 
-def decipher (data, key = 8*'00', iv=8*'00', pad=None, mode=pyDes.CBC):
+def _decipher (data, key = 8*'00', iv=8*'00', pad=None, mode=pyDes.CBC):
     _key = unhexlify (key)
     _iv  = unhexlify (iv)
     des_box=pyDes.des (_key, mode, pad=pad, padmode=pyDes.PAD_NORMAL)
@@ -33,7 +33,7 @@ def decipher (data, key = 8*'00', iv=8*'00', pad=None, mode=pyDes.CBC):
 def verifyResponse (resp, nr):
     _resp = unhexlify (resp)
     nr2 = nr[1:]+nr[:1]
-    return decipher (_resp) == nr2
+    return _decipher (_resp) == nr2
 
 def deriveSessionKey (nonce, ourNonce, isPalindrome=False):
     if isPalindrome:
