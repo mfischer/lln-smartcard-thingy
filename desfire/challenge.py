@@ -35,8 +35,8 @@ def verifyResponse (resp, nr):
     nr2 = nr[1:]+nr[:1]
     return _decipher (_resp) == nr2
 
-def deriveSessionKey (nonce, ourNonce, isPalindrome=False):
-    if isPalindrome:
+def deriveSessionKey (nonce, ourNonce, isSpecialCase=False):
+    if isSpecialCase:
         sessionKey = ourNonce[:4] + nonce[:4]
         assert len(sessionKey) is 8
         return sessionKey
@@ -45,8 +45,9 @@ def deriveSessionKey (nonce, ourNonce, isPalindrome=False):
         assert len(sessionKey) is 16
         return sessionKey
 
-def isPalindrome (key):
-    return key == key[::-1]
+def isSpecialCase (key):
+    h = len (key) / 2
+    return key[:h] == key[h:]
 
 if __name__ == '__main__':
     nonce  = 0x6e7577944adffc0c
