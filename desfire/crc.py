@@ -16,7 +16,7 @@ def _calculateCrc (vals, init):
 def _calculateFlippedCrc (vals, init):
     return _flipBytes (reduce (_updateCrc, vals, init))
 
-def _mergeList (list):
+def mergeList (list):
     def f (elem):
         return hex(elem)[2:]
     result = ''.join(map (f ,list))
