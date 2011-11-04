@@ -4,6 +4,8 @@ import subprocess
 
 from smartcard.util import toHexString, toBytes
 
+from DESFire import challenge
+
 class SmartUtils:
 
     def __init__(self):
@@ -48,9 +50,10 @@ class SmartUtils:
         #print(toHexString(data)+", "+toHexString([sw1, sw2]))
         
         # nonce + byte shifting
-        # n_t = data[3:]
+        n_t = unhexlify( hex (data[3:])[2:] )
         # n_t = n_t[1:]
         # n_t.append( data[3] )
+        response, nr = challenge.generateResponse(n_t)
         print(data[3:])
         n_t = self._encDES(data[3:])
         n2_t = str(n_t)[1:]+str(n_t)[0]
