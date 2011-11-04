@@ -9,14 +9,15 @@ def generateResponse (nonce, our_nonce = None, debug=False):
     nt2 = nt[1:]+nt[:1]
     nr = our_nonce or os.urandom(8)
     d1 = decipher (nr)
-    buff = hex (int (hexlify (d1), 16) ^ int (hexlify (nt2), 16))
-    d2 = decipher (unhexlify (buff[2:-1]))
+    buff = int (hexlify (d1), 16) ^ int (hexlify (nt2), 16)
+    buff = buff & 0xffffffffffffff00 >> 8 | buff & 0x00000000000000ff << 56
+    d2 = decipher (unhexlify(hex (buff)[2:-1]))
 
     if debug:
         print 'nt =', hexlify (nt)
         print 'nt2 =', hexlify (nt2)
         print 'D1 =', hexlify (d1)
-        print 'Buff =', buff[2:-1]
+        print 'Buff =', hex(buff)[2:-1]
         print 'D2 =', hexlify(d2)
         print 'D1 || D2 =',  hexlify (d1) + hexlify (d2)
 
