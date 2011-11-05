@@ -32,12 +32,11 @@ class SmartUtils:
         else:
             print("Error: "+toHexString(data)+" "+toHexString([sw1, sw2]))
 
-    def auth(self,n_r,key_num=0x00):
         """Authentification process
         
         Do the authentification 1st step, get the tag nonce and do byte shifting
         """
-        sys.stdout.write("Authentificating... ")
+        sys.stdout.write("Authenticating... ")
         cmd = toBytes ("FF 00 00 00 0A D4 40 01 90 0A 00 00 01")
         cmd.append(key_num)
         cmd.append(0x00)
@@ -68,3 +67,25 @@ class SmartUtils:
             sys.stdout.write("[Done]\n")
         else:
             sys.stdout.write("[Fail]\n")
+
+    def erase_all(self, key = 8*"00"):
+        def action ():
+            data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x07, 0xd4, 0x40, 0x90, 0xfc, 0x00, 0x00, 0x00])
+            if sw1 != 0x61:
+                return False
+            elif sw1 == 0x61 and sw2 != 0:
+                data, sw1, sw2 = self.session.sendCommandAPDU( toBytes("FF C0 00 00")+[sw2] )
+                #print 'Data: ', map (hex, data)
+                #print 'sw1: ', hex(sw1)
+                #print 'sw2: ', hex(sw2)
+                return True
+        self._withStatusMsg('Erasing Card', action)
+
+
+
+    def _withStatusMsg(self, msg, call):
+        sys.stdout.write (msg + ' ...')
+        if call ():
+            sys.stdout.write('[Done]\n')
+        else:
+            sys.stdout.write('[Fail]\n')
