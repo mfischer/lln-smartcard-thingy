@@ -36,9 +36,7 @@ def _listFromStr (str):
             tmp = ""
         else:
             tmp = b
-    def toInt (elem):
-        return int (elem, 16)
-    return map (toInt, l)
+    return map ((lambda e: int (e, 16)), l)
 
 def calculateCrc (string, init = 0x6363):
     return _calculateCrc (_listFromStr (string), init)
