@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
-OP = 0x00
+DESFIRE_OK = 0x91
+OP_OK = 0x00
 NO_CHANGES = 0x0c
 ILLEGAL_COMMAND_CODE = 0x1c
 INTEGRITY_ERR = 0x1e
@@ -40,3 +41,6 @@ def evaluateResponse (resp):
     """
     _tag, data, sw1, sw2 = _parseFullResponse (resp)
     return (data, sw1, sw2)
+
+def isOpOk (sw1, sw2):
+    return sw1 is DESFIRE_OK and sw2 is OP_OK

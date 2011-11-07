@@ -5,7 +5,7 @@ import subprocess
 from smartcard.util import toHexString, toBytes
 from binascii import hexlify, unhexlify
 
-from desfire import challenge, crc
+from desfire import challenge, crc, errors
 
 class SmartUtils:
 
@@ -56,8 +56,12 @@ class SmartUtils:
             return False
         
         data, sw1, sw2 = self.getAnswer (sw2)
+        dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+        if (dfsw1 != 0x91):
+            sys.stdout.write('[Fail]\n')
+            return False
 
-        n_t = crc.mergeList( data[3:11] )
+        n_t = crc.mergeList(dfdata)
         n2_t = unhexlify( n_t )
         response, nr = challenge.generateResponse(n2_t)
         
@@ -70,21 +74,28 @@ class SmartUtils:
             return False
         
         data, sw1, sw2 = self.getAnswer (sw2)
-        n2_r = crc.mergeList( data[3:11] )
+
+        dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+        if not errors.isOpOk (dfsw1, dfsw2):
+            sys.stdout.write('[Fail]\n')
+            return False
+
+        n2_r = crc.mergeList(dfdata)
 
         if challenge.verifyResponse(n2_r, nr):
             sys.stdout.write("[Done]\n")
         else:
             sys.stdout.write("[Fail]\n")
 
-    def eraseAll(self, key = 8*"00"):
+    def eraseAll(self, key = 16*"00"):
         def _eraseAll ():
             data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x08, 0xd4, 0x40, 0x01, 0x90, 0xfc, 0x00, 0x00, 0x00])
             if sw1 != 0x61:
                 return False
             elif sw1 == 0x61 and sw2 != 0:
                 data, sw1, sw2 = self.getAnswer (sw2)
-                return True
+                dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+                return errors.isOpOk (dfsw1, dfsw2)
         self._withStatusMsg('Erasing Card', _eraseAll)
 
 
@@ -100,9 +111,9 @@ class SmartUtils:
                 return False
             elif sw1 == 0x61:
                 data, sw1, sw2 = self.getAnswer (sw2)
-                #print sw1, sw2, map (hex, data)
-                # FIXME check response
-                return True
+                dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+                return errors.isOpOk (dfsw1, dfsw2)
+
         self._withStatusMsg('Creating applicaton #%x' % aid, _createApplication)
 
     def selectApplication (self, aid):
@@ -115,8 +126,8 @@ class SmartUtils:
                 return False
             else:
                 data, sw1, sw2 = self.getAnswer (sw2)
-                print map(hex,data)
-                return True
+                dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+                return errors.isOpOk (dfsw1, dfsw2)
         self._withStatusMsg('Selecting applicaton #%x' % aid, _selectApplication)
 
 
