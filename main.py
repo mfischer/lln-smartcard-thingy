@@ -5,10 +5,14 @@ from smartutils import SmartUtils
 from smartcard.util import toHexString, toBytes
 
 def main ():
-    s = SmartUtils()
-    s.poll()
-    s.auth()
-    s.erase_all()
+    s = SmartUtils ()
+    s.poll ()
+    s.auth ()
+    s.eraseAll ()
+    s.createApplication (aid=1)
+    s.createApplication (aid=2)
+    s.selectApplication (aid=1)
+    s.selectApplication (aid=2)
 
 if __name__ == "__main__":
     try:

@@ -10,7 +10,6 @@ from desfire import challenge, crc
 class SmartUtils:
 
     def __init__(self):
-
         self.session = None
         if len(smartcard.listReaders()) == 0:
             print("No reader found")
@@ -42,7 +41,7 @@ class SmartUtils:
 
         self._withStatusMsg ('Polling', _poll)
 
-    def auth(self,key_num=0x00):
+    def auth(self, key_num=0x00):
         """Authentification process
         
         Do the authentification 1st step, get the tag nonce and do byte shifting
@@ -78,17 +77,47 @@ class SmartUtils:
         else:
             sys.stdout.write("[Fail]\n")
 
-    def erase_all(self, key = 8*"00"):
-        def _erase_all ():
-            data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x07, 0xd4, 0x40, 0x90, 0xfc, 0x00, 0x00, 0x00])
+    def eraseAll(self, key = 8*"00"):
+        def _eraseAll ():
+            data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x08, 0xd4, 0x40, 0x01, 0x90, 0xfc, 0x00, 0x00, 0x00])
             if sw1 != 0x61:
                 return False
             elif sw1 == 0x61 and sw2 != 0:
                 data, sw1, sw2 = self.getAnswer (sw2)
-                #print 'sw1: ', hex(sw1)
-                #print 'sw2: ', hex(sw2)
                 return True
-        self._withStatusMsg('Erasing Card', _erase_all)
+        self._withStatusMsg('Erasing Card', _eraseAll)
+
+
+    def createApplication (self, aid = 0x01, key_setup = 0x0b, num_keys = 0x01):
+        def _createApplication ():
+            data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x0e,
+                                                           0xd4, 0x40, 0x01, 0x90, 0xca,
+                                                           0x00, 0x00, 0x05]
+                                                        + [aid, 0x00, 0x00]
+                                                        + [key_setup]
+                                                        + [num_keys] + [0x00])
+            if sw1 != 0x61:
+                return False
+            elif sw1 == 0x61:
+                data, sw1, sw2 = self.getAnswer (sw2)
+                #print sw1, sw2, map (hex, data)
+                # FIXME check response
+                return True
+        self._withStatusMsg('Creating applicaton #%x' % aid, _createApplication)
+
+    def selectApplication (self, aid):
+        def _selectApplication ():
+            data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x0c,
+                                                           0xd4, 0x40, 0x01, 0x90, 0x5a,
+                                                           0x00, 0x00, 0x03]
+                                                        + [aid, 0x00, 0x00] + [0x00])
+            if sw1 != 0x61:
+                return False
+            else:
+                data, sw1, sw2 = self.getAnswer (sw2)
+                print map(hex,data)
+                return True
+        self._withStatusMsg('Selecting applicaton #%x' % aid, _selectApplication)
 
 
 
