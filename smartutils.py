@@ -1,7 +1,5 @@
 import smartcard
 import sys
-import subprocess
-
 from smartcard.util import toHexString, toBytes
 from binascii import hexlify, unhexlify
 

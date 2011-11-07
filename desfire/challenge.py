@@ -43,29 +43,29 @@ def generateResponse (nonce, key=16*'00', ourNonce = None, debug=False):
 
 def _cipher_filter(cipher, inf, outf):
     while 1:
-        buf=inf.read()
+        buf = inf.read()
         if not buf:
-           break
-        outf.write(cipher.update(buf))
-        outf.write(cipher.final())
+            break
+        outf.write (cipher.update(buf))
+        outf.write (cipher.final())
         return outf.getvalue() 
 
 def _decipher (data, key = 16*'00', iv=8*'00', pad=None):
     _key = _unhexlify (key)
     _iv  = _unhexlify (iv)
-    pbuf=cStringIO.StringIO()
-    cbuf=cStringIO.StringIO(data)
+    pbuf = cStringIO.StringIO ()
+    cbuf = cStringIO.StringIO (data)
 
     if pad is None:
         _pad = 0
     else:
         _pad = 1
 
-    des_box=M2Crypto.EVP.Cipher (alg='des_ede_cbc',
-                                 op=0, key=_key,
-                                 iv=_iv,
-                                 padding = _pad)
-    plaintext =_cipher_filter(des_box, cbuf, pbuf)
+    des_box = M2Crypto.EVP.Cipher (alg='des_ede_cbc',
+                                   op=0, key=_key,
+                                   iv=_iv,
+                                   padding = _pad)
+    plaintext = _cipher_filter(des_box, cbuf, pbuf)
     pbuf.close ()
     cbuf.close ()
     return plaintext
