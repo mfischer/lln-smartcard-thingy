@@ -41,7 +41,7 @@ class SmartUtils:
 
         self._withStatusMsg ('Polling', _poll)
 
-    def auth(self, key_num=0x00):
+    def auth(self, key = 16*'00', key_num=0x00):
         """Authentification process
         
         Do the authentification 1st step, get the tag nonce and do byte shifting
@@ -63,7 +63,7 @@ class SmartUtils:
 
         n_t = crc.mergeList(dfdata)
         n2_t = unhexlify( n_t )
-        response, nr = challenge.generateResponse(n2_t)
+        response, nr = challenge.generateResponse(n2_t, key)
         
         cmd = "FF 00 00 00 19 D4 40 01 90 AF 00 00 10"
         cmd += hexlify(response)
@@ -82,7 +82,7 @@ class SmartUtils:
 
         n2_r = crc.mergeList(dfdata)
 
-        if challenge.verifyResponse(n2_r, nr):
+        if challenge.verifyResponse(n2_r, nr, key):
             sys.stdout.write("[Done]\n")
         else:
             sys.stdout.write("[Fail]\n")

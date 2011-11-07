@@ -8,7 +8,7 @@ from binascii import unhexlify as _unhexlify
 import M2Crypto.EVP
 import cStringIO
 
-def generateResponse (nonce, our_nonce = None, debug=False):
+def generateResponse (nonce, key=16*'00', ourNonce = None, debug=False):
     """
     Given a nonce picked by the verifier computes the response of the prover.
 
@@ -16,13 +16,13 @@ def generateResponse (nonce, our_nonce = None, debug=False):
     our_nonce  -- the nonce of the prover (in case he choses one).
     debug      -- output the intermediate steps.
     """
-    nt = _decipher(nonce)
+    nt = _decipher(nonce, key)
     nt2 = nt[1:]+nt[:1]
-    nr = our_nonce or os.urandom(8)
-    d1 = _decipher (nr)
+    nr = ourNonce or os.urandom(8)
+    d1 = _decipher (nr, key)
     buff = int (_hexlify (d1), 16) ^ int (_hexlify (nt2), 16)
     buff = buff & 0xffffffffffffff00 >> 8 | buff & 0x00000000000000ff << 56
-    d2 = _decipher (_unhexlify(hex (buff)[2:-1]))
+    d2 = _decipher (_unhexlify(hex (buff)[2:-1]), key)
 
     if debug:
         print 'nt =', _hexlify (nt)
@@ -70,7 +70,7 @@ def _decipher (data, key = 16*'00', iv=8*'00', pad=None):
     cbuf.close ()
     return plaintext
 
-def verifyResponse (resp, nr):
+def verifyResponse (resp, nr, key = 16*'00'):
     """
     Verifies the resonse given by the verifier for mutual authentication.
 
@@ -80,7 +80,7 @@ def verifyResponse (resp, nr):
 
     _resp = _unhexlify (resp)
     nr2 = nr[1:]+nr[:1]
-    return _decipher (_resp) == nr2
+    return _decipher (_resp, key) == nr2
 
 def deriveSessionKey (nonce, ourNonce, isDES=False):
     """
@@ -111,10 +111,10 @@ def isDES (key):
 if __name__ == '__main__':
     nonce  = 0x6e7577944adffc0c
     _nonce = _unhexlify (hex (nonce)[2:])
-    our_nonce = 0x1122334455667788
-    _our_nonce = _unhexlify (hex (our_nonce)[2:])
-    response, nr = generateResponse (_nonce, _our_nonce, debug=True)
+    ourNonce = 0x1122334455667788
+    _ourNonce = _unhexlify (hex (ourNonce)[2:])
+    response, nr = generateResponse (_nonce, ourNonce = _ourNonce, debug=True)
     print 'Response = ', _hexlify (response)
     print 'Nonce = ', _hexlify (nr)
     print 'Verification ok?', verifyResponse ('AD6CC16025CCFB7B', nr)
-    print 'Session key = ', _hexlify (deriveSessionKey (_nonce, _our_nonce, isDES=True))
+    print 'Session key = ', _hexlify (deriveSessionKey (_nonce, ourNonce = _ourNonce, isDES=True))

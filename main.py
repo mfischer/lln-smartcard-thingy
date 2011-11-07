@@ -7,7 +7,7 @@ from smartcard.util import toHexString, toBytes
 def main ():
     s = SmartUtils ()
     s.poll ()
-    s.auth ()
+    s.auth (key=16*"00")
     s.eraseAll ()
     s.createApplication (aid=1)
     s.createApplication (aid=2)
