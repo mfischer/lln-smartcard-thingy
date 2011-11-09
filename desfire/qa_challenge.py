@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 import unittest
-from challenge import generateResponse, verifyResponse, deriveSessionKey
+from challenge import generateResponse, verifyResponse, deriveSessionKey, decipherSendMode
 from binascii import hexlify, unhexlify
 
 class TestChallengeModule(unittest.TestCase):

@@ -97,7 +97,7 @@ class SmartUtils:
         self._withStatusMsg('Erasing Card', _eraseAll)
 
 
-    def createApplication (self, aid = 0x01, key_setup = 0x0b, num_keys = 0x01):
+    def createApplication (self, aid = 0x01, keySetup = 0x0b, numKeys = 0x01):
         def _createApplication ():
             data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x0e,
                                                            0xd4, 0x40, 0x01, 0x90, 0xca,

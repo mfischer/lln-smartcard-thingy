@@ -68,6 +68,7 @@ def _decipher (data, key = 16*'00', iv=8*'00', pad=None):
     plaintext = _cipher_filter(des_box, cbuf, pbuf)
     pbuf.close ()
     cbuf.close ()
+    des_box = None
     return plaintext
 
 def verifyResponse (resp, nr, key = 16*'00'):
