@@ -79,7 +79,7 @@ def _simpleDES (key, data):
 def xorit (iv, data):
     return crc.mergeList (map (lambda (x,y) : x^y, zip (crc._listFromStr (iv), data)))
 
-def decipherSendMode (key, data):
+def decipherSendMode (data, key):
     assert not len(data) % len(key)
     iv = 8*'00'
     res = []
@@ -87,7 +87,7 @@ def decipherSendMode (key, data):
         iv = _hexlify(_simpleDES(crc.mergeList(key), xorit(iv, data[0:8])))
         res.append(iv)
         data = data[8:]
-    return ''.join(res)
+    return _unhexlify (''.join(res))
 
 def verifyResponse (resp, nr, key = 16*'00'):
     """
