@@ -35,13 +35,6 @@ def generateResponse (nonce, key=16*'00', ourNonce = None, debug=False):
 
     return (d1 + d2, nr)
 
-#def _decipherPyDes (data, key = 8*'00', iv=8*'00', pad=None, mode=pyDes.CBC):
-    #_key = _unhexlify (key)
-    #_iv  = _unhexlify (iv)
-    #des_box=pyDes.des (_key, mode, pad=pad, padmode=pyDes.PAD_NORMAL)
-    #des_box.setIV (_iv)
-    #return des_box.decrypt (data)
-
 def _cipher_filter(cipher, inf, outf):
     while 1:
         buf = inf.read()
