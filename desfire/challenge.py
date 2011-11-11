@@ -7,6 +7,7 @@ from binascii import unhexlify as _unhexlify
 
 import M2Crypto.EVP
 import cStringIO
+import crc
 
 def generateResponse (nonce, key=16*'00', ourNonce = None, debug=False):
     """
@@ -70,6 +71,30 @@ def _decipher (data, key = 16*'00', iv=8*'00', pad=None):
     cbuf.close ()
     des_box = None
     return plaintext
+
+
+def _simpleDES (key, data):
+    assert len (key) in [8, 16, 24]
+    assert len (data) in [8, 16, 24]
+    assert not len (data) % len (key)
+    cipher = M2Crypto.EVP.Cipher (alg='des_ecb', op=0, iv=8*'00',
+                                  key=_unhexlify(key),
+                                  salt=None,
+                                  padding = 0)
+    return cipher.update (_unhexlify(data))
+
+def xorit (iv, data):
+    return crc.mergeList (map (lambda (x,y) : x^y, zip (crc._listFromStr (iv), data)))
+
+def decipherSendMode (key, data):
+    assert not len(data) % len(key)
+    iv = 8*'00'
+    res = []
+    while len(data):
+        iv = _hexlify(_simpleDES(crc.mergeList(key), xorit(iv, data[0:8])))
+        res.append(iv)
+        data = data[8:]
+    return ''.join(res)
 
 def verifyResponse (resp, nr, key = 16*'00'):
     """

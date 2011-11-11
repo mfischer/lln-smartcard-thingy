@@ -11,6 +11,16 @@ class TestChallengeModule(unittest.TestCase):
         self.ourNonce = 0x1122334455667788
         self.masterKey = 16*'00'
 
+    def tearDown(self):
+        self.nonce = None
+        self.ourNonce = None
+        self.masterKey = None
+
+    def testDecipherSendMode(self):
+        input = [0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88,0x99,0x00,0xaa,0xbb,0xcc,0xdd,0xee,0xff,0xd7,0x5a,0x00,0x00,0x00,0x00,0x00,0x00]
+        sessionKey = [0xaa,0xbb,0xcc,0xdd,0xcb, 0x06, 0xb4, 0xf5]
+        self.assertEqual ("0ce6c7e83fad77556d9703800c1c5e461c9e9c36287febac", decipherSendMode (sessionKey,input))
+
     def testGenerateResponse(self):
         _nonce = unhexlify (hex (self.nonce)[2:])
         _ourNonce = unhexlify (hex (self.ourNonce)[2:])
