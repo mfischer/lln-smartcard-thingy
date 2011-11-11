@@ -1,0 +1,4 @@
+#!/bin/sh
+
+#python2 qa_smartutils.py
+python2 desfire/qa_*.py
