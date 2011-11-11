@@ -103,8 +103,8 @@ class SmartUtils:
                                                            0xd4, 0x40, 0x01, 0x90, 0xca,
                                                            0x00, 0x00, 0x05]
                                                         + [aid, 0x00, 0x00]
-                                                        + [key_setup]
-                                                        + [num_keys] + [0x00])
+                                                        + [keySetup]
+                                                        + [numKeys] + [0x00])
             if sw1 != 0x61:
                 return False
             elif sw1 == 0x61:
