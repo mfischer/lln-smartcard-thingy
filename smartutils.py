@@ -69,19 +69,20 @@ class SmartUtils:
         data, sw1, sw2 = self.session.sendCommandAPDU( toBytes(cmd) )
         if sw1!=0x61 or sw2!=0x0F:
             sys.stdout.write("[Fail]\n")
-            return False
+            return None
         
         data, sw1, sw2 = self.getAnswer (sw2)
 
         dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
         if not errors.isOpOk (dfsw1, dfsw2):
             sys.stdout.write('[Fail]\n')
-            return False
+            return None
 
         n2_r = crc.mergeList(dfdata)
 
         if challenge.verifyResponse(n2_r, nr, key):
             sys.stdout.write("[Done]\n")
+            return challenge.deriveSessionKey (nr, n_t, challenge.isDES (key) or len(key) == 8)
         else:
             sys.stdout.write("[Fail]\n")
 
@@ -127,6 +128,43 @@ class SmartUtils:
                 dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
                 return errors.isOpOk (dfsw1, dfsw2)
         self._withStatusMsg('Selecting applicaton #%x' % aid, _selectApplication)
+
+    def changeKey (self, keyNo, newKey, currentSessionKey, authKeyDifferent = True, currentKey = None):
+        """
+        After having selected an AID with selectApplication before
+        this function allows for changing the key with number 'keyNo'
+
+        The special case where the key to change is identical
+        with the key used to authenticate is denoted by setting
+        authKeyDifferent to 'False'
+        """
+        crcval = None
+        if authKeyDifferent:
+            assert len(newKey) is 16
+            data = int(newKey, 16) ^ int(currentKey, 16)
+            #FIXME decide whether we want the old calculateFlippedCrc interface with lists instead.
+            crcxor = crc.calculateFlippedCrc (hex(data)[2:])
+            crcnk = crc.calculateFlippedCrc (newKey)
+            frame = toBytes(hex(data)[2:]) + crcxor + crcnk + [0x0,0x0,0x0,0x0]
+            print 'Frame: ', frame
+
+        else:
+            crcnk = crc.calculateFlippedCrc (newKey)
+            frame = toBytes (newKey) + toBytes(hex(crcnk)[2:]) + [0x0,0x0,0x0,0x0,0x0,0x0]
+            #print 'Frame: ', map(hex,frame)
+            #print 'Framelen: ', len (frame)
+            _frame = unhexlify(crc.mergeList(frame))
+            print 'CurrentSessionKey: ' , currentSessionKey
+            print 'Frame deciphered: ', hexlify (challenge._decipher (_frame, key = currentSessionKey))
+            data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x22,
+                                                           0xd4, 0x40, 0x01, 0x90, 0xc4,
+                                                           0x00, 0x00, 0x19]
+                                                           + [keyNo] + crc._listFromStr (hexlify (challenge._decipher (_frame, key = currentSessionKey)))
+                                                           + [0x00])
+            data, dfsw1, dfsw2 = self.getAnswer (sw2)
+            print 'Data from DESFire', map(hex,data)
+            print 'SW1 from DESFire', hex(sw1)
+            print 'SW2 from DESFire', hex(sw2)
 
 
 
