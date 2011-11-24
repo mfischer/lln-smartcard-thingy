@@ -33,7 +33,7 @@ def generateResponse (nonce, key=16*'00', ourNonce = None, debug=False):
         print 'D2 =', _hexlify(d2)
         print 'D1 || D2 =',  _hexlify (d1) + _hexlify (d2)
 
-    return (d1 + d2, nr)
+    return (d1 + d2, nr, nt)
 
 def _cipher_filter(cipher, inf, outf):
     while 1:
@@ -80,7 +80,7 @@ def xorit (iv, data):
     return crc.mergeList (map (lambda (x,y) : x^y, zip (crc._listFromStr (iv), data)))
 
 def decipherSendMode (data, key):
-    assert not len(data) % len(key)
+    #assert not len(data) % len(key), 'len(data)=%u len(key)=%u' % (len(data), len(key))
     iv = 8*'00'
     res = []
     while len(data):
@@ -136,4 +136,4 @@ if __name__ == '__main__':
     print 'Response = ', _hexlify (response)
     print 'Nonce = ', _hexlify (nr)
     print 'Verification ok?', verifyResponse ('AD6CC16025CCFB7B', nr)
-    print 'Session key = ', _hexlify (deriveSessionKey (_nonce, ourNonce = _ourNonce, isDES=True))
+    print 'Session key = ', _hexlify (deriveSessionKey (nonce = _nonce, ourNonce = _ourNonce, isDES=True))
