@@ -169,8 +169,8 @@ class SmartUtils:
         print 'SW1 from DESFire', hex(dfsw1)
         print 'SW2 from DESFire', hex(dfsw2)
         
-        def createStdDataFile(self, fileNo = 0x01, comSet = 0x03, accRights = [0xE0, 0x00], fileSizeLSB):
-            def _createStdDataFile ():
+    def createStdDataFile(self, fileNo = 0x01, comSet = 0x03, accRights = [0xE0, 0x00], fileSizeLSB):
+        def _createStdDataFile ():
             data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x10,
                                                            0xd4, 0x40, 0x01, 0x90, 0xcd,
                                                            0x00, 0x00, 0x07]
@@ -183,6 +183,20 @@ class SmartUtils:
                 dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
                 return errors.isOpOk (dfsw1, dfsw2)
         self._createStdDataFile('Creating standard data file #%x' % fileNo, _createStdDataFile)
+
+    def deleteStdDataFile(self, fileNo = 0x01):
+        def _deleteStdDataFile ():
+            data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x0A,
+                                                           0xd4, 0x40, 0x01, 0x90, 0xDF,
+                                                           0x00, 0x00, 0x01]
+                                                           + [fileNo] + [0x00])
+            if sw1 != 0x61:
+                return False[0x00]
+            else:
+                data, sw1, sw2 = self.getAnswer (sw2)
+                dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+                return errors.isOpOk (dfsw1, dfsw2)
+        self._deleteStdDataFile('Deleting standard data file #%x' % fileNo, _createStdDataFile)
 
 
     def _withStatusMsg(self, msg, call):
