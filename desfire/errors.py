@@ -44,3 +44,8 @@ def evaluateResponse (resp):
 
 def isOpOk (sw1, sw2):
     return sw1 is DESFIRE_OK and sw2 is OP_OK
+
+
+def isOpOkAdd(sw1, sw2):
+    """Op is ok but has another frame"""
+    return sw1 is DESFIRE_OK and sw2 is ADD_FRAME
