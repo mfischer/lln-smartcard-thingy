@@ -197,7 +197,7 @@ class SmartUtils:
                 data, sw1, sw2 = self.getAnswer (sw2)
                 dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
                 return errors.isOpOk (dfsw1, dfsw2)
-        self._withStatusMsg('Deleting standard data file #%x' % fileNo, _createStdDataFile)
+        self._withStatusMsg('Deleting standard data file #%x' % fileNo, _deleteStdDataFile)
 
 
     def readStdDataFile(self, fileNo = 0x01, offset = [0x00, 0x00, 0x00], readingLength = [0x00, 0x00, 0x00]):
