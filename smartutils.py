@@ -174,7 +174,7 @@ class SmartUtils:
             data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x10,
                                                            0xd4, 0x40, 0x01, 0x90, 0xcd,
                                                            0x00, 0x00, 0x07]
-                                                           + [fileNo] + [comSet] + [accRights] 
+                                                           + [fileNo] + [comSet] + accRights
                                                            + fileSizeLSB + [0x00])
             if sw1 != 0x61:
                 return False[0x00]
