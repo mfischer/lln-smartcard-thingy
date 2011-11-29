@@ -16,7 +16,7 @@ def main ():
     s.createApplication (aid=1)
     #s.createApplication (aid=2)
     s.selectApplication (aid=1)
-    sk = s.auth (key=16*"00",key_num=0)
+    sk = s.auth (key=16*"00",key_num=0))
     print 'SessionKey is:', hexlify(sk)
     s.changeKey(0, 8*"11"+8*"00", hexlify(sk), False, 8*"00")
     sk = s.auth (key=8*"11"+8*"00",key_num=0)
