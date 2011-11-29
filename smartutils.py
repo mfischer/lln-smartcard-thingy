@@ -169,7 +169,7 @@ class SmartUtils:
         print 'SW1 from DESFire', hex(dfsw1)
         print 'SW2 from DESFire', hex(dfsw2)
         
-    def createStdDataFile(self, fileNo = 0x01, comSet = 0x03, accRights = [0xE0, 0x00], fileSizeLSB):
+    def createStdDataFile(self, fileNo = 0x01, comSet = 0x03, accRights = [0xE0, 0x00], fileSizeLSB = [0x20, 0x00, 0x00]):
         def _createStdDataFile ():
             data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x10,
                                                            0xd4, 0x40, 0x01, 0x90, 0xcd,
@@ -200,11 +200,11 @@ class SmartUtils:
         self._deleteStdDataFile('Deleting standard data file #%x' % fileNo, _createStdDataFile)
 
 
-    def readStdDataFile(self, fileNo = 0x01, offset = 0x00 00 00, readingLength = 0x00 00 00):
+    def readStdDataFile(self, fileNo = 0x01, offset = [0x00, 0x00, 0x00], readingLength = [0x00, 0x00, 0x00]):
         data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x0F,
                                                        0xd4, 0x40, 0x01, 0x90, 0xBD,
                                                        0x00, 0x00, 0x07]
-                                                      + [fileNo] + [offset] + [readingLength] + [0x00])
+                                                      + [fileNo] + offset + readingLength + [0x00])
         if sw1 != 0x61:
             return False[0x00]
         else:
