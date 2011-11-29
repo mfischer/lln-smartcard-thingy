@@ -62,12 +62,7 @@ class SmartUtils:
         n_t_enc = crc.mergeList(dfdata)
         n2_t = unhexlify( n_t_enc )
         
-        try:
-            response, nr, nt = challenge.generateResponse(n2_t, key)
-        except TypeError:
-            print "Something went wrong: generated response is an odd-length string"
-            # FIXME recuperer de cette erreur
-            return
+        response, nr, nt = challenge.generateResponse(n2_t, key)
             
         nt = hexlify(nt)
         #response, nr = challenge.generateResponse(n2_t, key)
