@@ -169,14 +169,8 @@ class SmartUtils:
         print 'SW1 from DESFire', hex(dfsw1)
         print 'SW2 from DESFire', hex(dfsw2)
         
-<<<<<<< HEAD
-        def createStdDataFile(self, fileNo = 0x01, comSet = 0x03, accRights = [0xE0, 0x00], fileSizeLSB):
-            # TODO Testing this method ;-)
-            def _createStdDataFile ():
-=======
     def createStdDataFile(self, fileNo = 0x01, comSet = 0x03, accRights = [0xE0, 0x00], fileSizeLSB):
         def _createStdDataFile ():
->>>>>>> a823daa4af89d6966807d673fa3847a67319050d
             data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x10,
                                                            0xd4, 0x40, 0x01, 0x90, 0xcd,
                                                            0x00, 0x00, 0x07]
@@ -189,9 +183,6 @@ class SmartUtils:
                 dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
                 return errors.isOpOk (dfsw1, dfsw2)
         self._createStdDataFile('Creating standard data file #%x' % fileNo, _createStdDataFile)
-<<<<<<< HEAD
-    
-=======
 
 
     def deleteStdDataFile(self, fileNo = 0x01):
@@ -246,7 +237,7 @@ class SmartUtils:
             # TODO decrypt data with 3DES in CBC send mode with session key
             return fcontent
 
->>>>>>> a823daa4af89d6966807d673fa3847a67319050d
+
     def _withStatusMsg(self, msg, call):
         sys.stdout.write (msg + ' ...')
         if call ():
