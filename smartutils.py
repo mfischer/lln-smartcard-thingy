@@ -169,9 +169,14 @@ class SmartUtils:
         print 'SW1 from DESFire', hex(dfsw1)
         print 'SW2 from DESFire', hex(dfsw2)
         
+<<<<<<< HEAD
         def createStdDataFile(self, fileNo = 0x01, comSet = 0x03, accRights = [0xE0, 0x00], fileSizeLSB):
             # TODO Testing this method ;-)
             def _createStdDataFile ():
+=======
+    def createStdDataFile(self, fileNo = 0x01, comSet = 0x03, accRights = [0xE0, 0x00], fileSizeLSB):
+        def _createStdDataFile ():
+>>>>>>> a823daa4af89d6966807d673fa3847a67319050d
             data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x10,
                                                            0xd4, 0x40, 0x01, 0x90, 0xcd,
                                                            0x00, 0x00, 0x07]
@@ -184,7 +189,64 @@ class SmartUtils:
                 dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
                 return errors.isOpOk (dfsw1, dfsw2)
         self._createStdDataFile('Creating standard data file #%x' % fileNo, _createStdDataFile)
+<<<<<<< HEAD
     
+=======
+
+
+    def deleteStdDataFile(self, fileNo = 0x01):
+        def _deleteStdDataFile ():
+            data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x0A,
+                                                           0xd4, 0x40, 0x01, 0x90, 0xDF,
+                                                           0x00, 0x00, 0x01]
+                                                           + [fileNo] + [0x00])
+            if sw1 != 0x61:
+                return False[0x00]
+            else:
+                data, sw1, sw2 = self.getAnswer (sw2)
+                dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+                return errors.isOpOk (dfsw1, dfsw2)
+        self._deleteStdDataFile('Deleting standard data file #%x' % fileNo, _createStdDataFile)
+
+
+    def readStdDataFile(self, fileNo = 0x01, offset = 0x00 00 00, readingLength = 0x00 00 00):
+        data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x0F,
+                                                       0xd4, 0x40, 0x01, 0x90, 0xBD,
+                                                       0x00, 0x00, 0x07]
+                                                      + [fileNo] + [offset] + [readingLength] + [0x00])
+        if sw1 != 0x61:
+            return False[0x00]
+        else:
+            data, sw1, sw2 = self.getAnswer (sw2)
+            dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+            
+            if errors.isOpOk (dfsw1, dfsw2):
+                fcontent = dfdata
+            elif errors.isOpOkAdd (dfsw1, dfsw2):
+                # has more data
+                fcontent = dfdata
+                data, sw1, sw2 = self.session.sendCommandAPDU([0xff, 0x00, 0x00, 0x00, 0x08,
+                                                               0xd4, 0x40, 0x01, 0x90, 0xAF,
+                                                               0x00, 0x00, 0x00, 0x00])
+                if sw1 != 0x61:
+                    return False[0x00]
+                else:
+                    data, sw1, sw2 = self.getAnswer (sw2)
+                    dfdata, dfsw1, dfsw2 = errors.evaluateResponse (data)
+                    if errors.isOpOk (dfsw1, dfsw2):
+                        fcontent += dfdata
+                    else:
+                        print("Error OP %s %s" % (dfsw1, dfsw2))
+                        return False[0x00]
+        
+            else:
+                print("Error OP %s %s" % (dfsw1, dfsw2))
+                return False[0x00]
+
+            # TODO decrypt data with 3DES in CBC send mode with session key
+            return fcontent
+
+>>>>>>> a823daa4af89d6966807d673fa3847a67319050d
     def _withStatusMsg(self, msg, call):
         sys.stdout.write (msg + ' ...')
         if call ():
